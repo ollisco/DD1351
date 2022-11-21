@@ -13,10 +13,9 @@ valid_proof(Premise, Goal, Proof):-
 % Check Goal		    
 
 check_goal(Goal, Proof):- 
-	last(Proof, LastRow),
-	nth1(2, LastRow, Goal).
+	last(Proof, LastLine),
+	nth1(2, LastLine, Goal).
 	
-
 % Check Proof 
 
 check_proof(_, [], _).
@@ -139,7 +138,7 @@ check_rule(_, [_, A, orel(S1,S2,S3,S4,S5)], VerifiedList):-
 add_to_list(H, VerifiedList, NewList):-
 	appendEl(H, VerifiedList, NewList).
      
-% Lägger in längst bak i nya listan
+% Add to the back
 appendEl(X, [], [X]).
 appendEl(X, [H | T], [H | Y]):-
 	appendEl(X, T, Y).
