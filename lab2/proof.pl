@@ -78,7 +78,7 @@ check_rule(_,[_, neg(Atom), mt(X,Y)], CheckedList):-
 	member([X,imp(Atom,Atom2),_], CheckedList),
 	member([Y,neg(Atom2),_], CheckedList).
 
-%% mt(x,y) but with double negation negation
+%% mt(x,y) but with double negation
 check_rule(_,[_,neg(neg(Atom)), mt(X,Y)], CheckedList):-
 	member([X,imp(neg(Atom,Atom2)),_], CheckedList),
 	member([Y,neg(Atom2),_], CheckedList);
