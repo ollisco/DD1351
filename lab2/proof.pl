@@ -2,13 +2,13 @@
 % Labb 2 - 2022-11-21						
 
 verify(InputFileName) :- see(InputFileName),
-	read(Prems), read(Goal), read(Proof),
+	read(Premise), read(Goal), read(Proof),
 	seen,
-	valid_proof(Prems, Goal, Proof).
+	valid_proof(Premise, Goal, Proof).
 
-valid_proof(Prems, Goal, Proof):- 
+valid_proof(Premise, Goal, Proof):- 
 	check_goal(Goal, Proof),
-	check_proof(Prems, Proof, []), !.
+	check_proof(Premise, Proof, []), !.
 
 % Check Goal		    
 
@@ -20,124 +20,124 @@ check_goal(Goal, Proof):-
 % Check Proof 
 
 check_proof(_, [], _).
-check_proof(Prems, [H|T], CheckedList):- 
-	check_rule(Prems, H, CheckedList),
-	add_to_list(H, CheckedList, NewList),
-	check_proof(Prems, T, NewList).
+check_proof(Premise, [H|T], VerifiedList):- 
+	check_rule(Premise, H, VerifiedList),
+	add_to_list(H, VerifiedList, NewList),
+	check_proof(Premise, T, NewList).
 	
 % Check Rules
 
 %% Check if it is a premise
-check_rule(Prems, [_, Atom, premise], _):-
-	member(Atom, Prems).	
+check_rule(Premise, [_, A, premise], _):-
+	member(A, Premise).	
 
 %% andint(X,Y)
-check_rule(_, [_, and(Atom1,Atom2), andint(X,Y)], CheckedList):-
-	member([X, Atom1, _], CheckedList),
-	member([Y, Atom2, _], CheckedList).
+check_rule(_, [_, and(A1,A2), andint(X,Y)], VerifiedList):-
+	member([X, A1, _], VerifiedList),
+	member([Y, A2, _], VerifiedList).
 
 %% orint1(X)
-check_rule(_,[_,or(Atom,_), orint1(Z)], CheckedList):-
-	member([Z,Atom,_], CheckedList).
+check_rule(_,[_,or(A,_), orint1(Z)], VerifiedList):-
+	member([Z,A,_], VerifiedList).
 
 %% orint2(X)
-check_rule(_,[_,or(_,Atom), orint2(Z)], CheckedList) :-
-	member([Z,Atom,_], CheckedList).
+check_rule(_,[_,or(_,A), orint2(Z)], VerifiedList) :-
+	member([Z,A,_], VerifiedList).
 
 %% andel1         
-check_rule(_, [_, Atom, andel1(X)],CheckedList):-
-	member([X, and(Atom,_), _], CheckedList).
+check_rule(_, [_, A, andel1(X)],VerifiedList):-
+	member([X, and(A,_), _], VerifiedList).
 
 %% andel2 
-check_rule(_, [_, Atom, andel2(X)],CheckedList):-
-	member([X, and(_,Atom), _],CheckedList).
+check_rule(_, [_, A, andel2(X)],VerifiedList):-
+	member([X, and(_,A), _],VerifiedList).
 
 %% impel(x,y)
-check_rule(_, [_, Atom, impel(X,Y)],CheckedList):-
-    member([X, Atom1,_],CheckedList),
-	member([Y, imp(Atom1,Atom),_],CheckedList).
+check_rule(_, [_, A, impel(X,Y)],VerifiedList):-
+    member([X, A1,_],VerifiedList),
+	member([Y, imp(A1,A),_],VerifiedList).
 
 %% lem
-check_rule(_, [_,or(Atom, neg(Atom)), lem],_).
+check_rule(_, [_,or(A, neg(A)), lem],_).
 
 
 %% copy(x)
-check_rule(_,[_,Atom, copy(X)],CheckedList):-
-	member([X,Atom,_],CheckedList).
+check_rule(_,[_,A, copy(X)],VerifiedList):-
+	member([X,A,_],VerifiedList).
 
 %% negel(x)
-check_rule(_,[_,cont, negel(X,Y)], CheckedList):-
-	member([X, Atom,_], CheckedList),
-	member([Y, neg(Atom),_], CheckedList).
+check_rule(_,[_,cont, negel(X,Y)], VerifiedList):-
+	member([X, A,_], VerifiedList),
+	member([Y, neg(A),_], VerifiedList).
 
 %% mt(x,y) 
-check_rule(_,[_, neg(Atom), mt(X,Y)], CheckedList):-
-	member([X,imp(Atom,neg(Atom2)),_], CheckedList),
-	member([Y,neg(neg(Atom2)),_], CheckedList);
+check_rule(_,[_, neg(A), mt(X,Y)], VerifiedList):-
+	member([X,imp(A,neg(A2)),_], VerifiedList),
+	member([Y,neg(neg(A2)),_], VerifiedList);
 
-	member([X,imp(Atom,Atom2),_], CheckedList),
-	member([Y,neg(Atom2),_], CheckedList).
+	member([X,imp(A,A2),_], VerifiedList),
+	member([Y,neg(A2),_], VerifiedList).
 
 %% mt(x,y) but with double negation
-check_rule(_,[_,neg(neg(Atom)), mt(X,Y)], CheckedList):-
-	member([X,imp(neg(Atom,Atom2)),_], CheckedList),
-	member([Y,neg(Atom2),_], CheckedList);
+check_rule(_,[_,neg(neg(A)), mt(X,Y)], VerifiedList):-
+	member([X,imp(neg(A,A2)),_], VerifiedList),
+	member([Y,neg(A2),_], VerifiedList);
 
-	member([X,imp(neg(Atom,neg(Atom2))),_], CheckedList),
-	member([Y,neg(neg(Atom2)),_], CheckedList).
+	member([X,imp(neg(A,neg(A2))),_], VerifiedList),
+	member([Y,neg(neg(A2)),_], VerifiedList).
 
 %% negnegint(x)
-check_rule(_,[_, neg(neg(Atom)), negnegint(X)], CheckedList):-
-	member([X, Atom,_], CheckedList).
+check_rule(_,[_, neg(neg(A)), negnegint(X)], VerifiedList):-
+	member([X, A,_], VerifiedList).
 
 %% negnegel(x)
-check_rule(_,[_,Atom, negnegel(X)], CheckedList):-
-	member([X, neg(neg(Atom)),_], CheckedList).
+check_rule(_,[_,A, negnegel(X)], VerifiedList):-
+	member([X, neg(neg(A)),_], VerifiedList).
 
 %% contel(x)
-check_rule(_, [_, _, contel(X)], CheckedList):-
-	member([X, cont, _], CheckedList).
+check_rule(_, [_, _, contel(X)], VerifiedList):-
+	member([X, cont, _], VerifiedList).
 
 
 % Hanbdling boxes
 %% Checks the box and calls check_proof which then recursively iterates through the box
-check_rule(Prems, [[X, Atom, assumption]|T], CheckedList):-
-	add_to_list([X, Atom, assumption], CheckedList, NewList),
-	check_proof(Prems,T,NewList).
+check_rule(Premise, [[X, A, assumption]|T], VerifiedList):-
+	add_to_list([X, A, assumption], VerifiedList, NewList),
+	check_proof(Premise,T,NewList).
 	
 %%n negint
-check_rule(_, [_, neg(Atom), negint(X,Y)], CheckedList):-
-	member(BoxList, CheckedList),
-	member([X, Atom, assumption], BoxList),
+check_rule(_, [_, neg(A), negint(X,Y)], VerifiedList):-
+	member(BoxList, VerifiedList),
+	member([X, A, assumption], BoxList),
 	member([Y, cont, _], BoxList).
 
 %% impint
-check_rule(_, [_, imp(Atom1,Atom2), impint(X,Y)], CheckedList):-
-	member(BoxList, CheckedList),
-	member([X, Atom1, assumption], BoxList),
-	member([Y, Atom2, _], BoxList).
+check_rule(_, [_, imp(A1,A2), impint(X,Y)], VerifiedList):-
+	member(BoxList, VerifiedList),
+	member([X, A1, assumption], BoxList),
+	member([Y, A2, _], BoxList).
 
 %% pbc
-check_rule(_, [_, Atom, pbc(X,Y)], CheckedList):-
-	member(BoxList, CheckedList),
-	member([X, neg(Atom), assumption], BoxList),
+check_rule(_, [_, A, pbc(X,Y)], VerifiedList):-
+	member(BoxList, VerifiedList),
+	member([X, neg(A), assumption], BoxList),
 	member([Y, cont, _], BoxList).
 
 %% or-elimination: orel(x,y,u,v,w)
-check_rule(_, [_, Atom, orel(S1,S2,S3,S4,S5)], CheckedList):-
-	member(BoxList1, CheckedList),
-	member(BoxList2, CheckedList),
-	member([S1, or(Atom1,Atom2),_], CheckedList),
-	member([S2, Atom1, assumption], BoxList1),
-	member([S3,Atom, _], BoxList1),
-	member([S4,Atom2, assumption], BoxList2),
-	member([S5,Atom, _], BoxList2).
+check_rule(_, [_, A, orel(S1,S2,S3,S4,S5)], VerifiedList):-
+	member(BoxList1, VerifiedList),
+	member(BoxList2, VerifiedList),
+	member([S1, or(A1,A2),_], VerifiedList),
+	member([S2, A1, assumption], BoxList1),
+	member([S3,A, _], BoxList1),
+	member([S4,A2, assumption], BoxList2),
+	member([S5,A, _], BoxList2).
 
 % List handling
 
 % Add to list
-add_to_list(H, CheckedList, NewList):-
-	appendEl(H, CheckedList, NewList).
+add_to_list(H, VerifiedList, NewList):-
+	appendEl(H, VerifiedList, NewList).
      
 % Lägger in längst bak i nya listan
 appendEl(X, [], [X]).
